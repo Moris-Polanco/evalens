@@ -7,7 +7,7 @@ import os
 st.set_page_config(layout="wide") 
 
 # Agregamos una columna a la izquierda para la API y los criterios 
-columna_api, columna_criterios, columna_ensayos = st.beta_columns([1, 1, 3]) 
+columna_api, columna_criterios, columna_ensayos = st.columns([1, 1, 3]) 
 
 # Pedimos al usuario que ingrese su API key 
 api_key = columna_api.text_input("Ingresa tu API key de OpenAI:") 
