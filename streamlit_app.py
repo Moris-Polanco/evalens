@@ -10,18 +10,20 @@ st.set_page_config(layout="wide")
 columna_api, columna_criterios, columna_ensayos = st.columns([1, 1, 3])
 
 # Pedimos al usuario que ingrese su API key
-api_key = columna_api.text_input("Ingresa tu API key de OpenAI:")
+api_key = columna_api.text_input("Ingresa tu API key de OpenAI:", key='api_key')
 if api_key:
     openai.api_key = api_key
 
 # Pedimos al usuario que ingrese los criterios de evaluación
 criterios = []
+contador = 0
 while True:
-    criterio = columna_criterios.text_input("Ingresa un criterio de evaluación:")
-    descripcion = columna_criterios.text_input("Ingresa una descripción del criterio:")
+    criterio = columna_criterios.text_input("Ingresa un criterio de evaluación:", key=f'criterio_{contador}')
+    descripcion = columna_criterios.text_input("Ingresa una descripción del criterio:", key=f'descripcion_{contador}')
     if not criterio or not descripcion:
         break
     criterios.append({"Criterio": criterio, "Descripción": descripcion})
+    contador += 1
 
 # Agregamos un título al principio
 st.title('Evaluador de ensayos')
