@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import openai
@@ -6,8 +7,22 @@ import os
 # Configuramos el diseño de la página
 st.set_page_config(layout="wide")
 
-# Accedemos a la clave de API de OpenAI a través de una variable de entorno
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+# Agregamos una columna a la izquierda para la API y los criterios
+columna_api, columna_criterios, columna_ensayos = st.beta_columns([1, 1, 3])
+
+# Pedimos al usuario que ingrese su API key
+api_key = columna_api.text_input("Ingresa tu API key de OpenAI:")
+if api_key:
+    openai.api_key = api_key
+
+# Pedimos al usuario que ingrese los criterios de evaluación
+criterios = []
+while True:
+    criterio = columna_criterios.text_input("Ingresa un criterio de evaluación:")
+    descripcion = columna_criterios.text_input("Ingresa una descripción del criterio:")
+    if not criterio or not descripcion:
+        break
+    criterios.append({"Criterio": criterio, "Descripción": descripcion})
 
 # Agregamos un título al principio
 st.title('Evaluador de ensayos')
@@ -24,8 +39,8 @@ if archivo:
 
     # Pedimos al usuario que seleccione las columnas con el título y el ensayo
     columnas = data.columns
-    columna_titulo = st.selectbox('Selecciona la columna que contiene los títulos:', columnas)
-    columna_ensayo = st.selectbox('Selecciona la columna que contiene los ensayos:', columnas)
+    columna_titulo = columna_ensayos.selectbox('Selecciona la columna que contiene los títulos:', columnas)
+    columna_ensayo = columna_ensayos.selectbox('Selecciona la columna que contiene los ensayos:', columnas)
 
     # Agregamos un botón para iniciar la evaluación
     if st.button('Evaluar'):
@@ -36,8 +51,10 @@ if archivo:
         # Utilizamos la API de GPT-3 para calificar cada ensayo
         resultados = []
         for i, ensayo in enumerate(ensayos):
-            prompt = f"Califica el ensayo titulado '{titulos[i]}' Sé exigente al evaluar, quita puntos por mala ortografía."
-            prompt += f"Ensayo: {ensayo}. "
+            prompt = f"Califica el ensayo titulado '{titulos[i]}'. Sé exigente al evaluar, quita puntos por mala ortografía. "
+            prompt += f"{ensayo}. "
+            for criterio in criterios:
+                prompt += f"{criterio['Criterio']}: {criterio['Descripción']}. "
             response = openai.Completion.create(
                 engine="text-davinci-003",
                 prompt=prompt,
@@ -75,3 +92,4 @@ if archivo:
             st.write(f'<h2>Resultados:</h2>{tabla_html}', unsafe_allow_html=True, target='new')
         else:
             st.write("No se encontraron resultados")
+
